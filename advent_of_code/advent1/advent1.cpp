@@ -8,6 +8,8 @@
 #define DAY1DBG ENABLE_DAY1DBG
 #endif
 
+using namespace std;
+
 #if DAY1DBG
 	#include <iostream>
 #endif
@@ -25,6 +27,10 @@ namespace
 {
 	int solve_p1(std::istream& input)
 	{
+		string line;
+		while (getline(input, line)) {
+			cout << input << endl;
+		}
 		return 0;
 	}
 }
