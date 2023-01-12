@@ -4,12 +4,13 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include <queue>
 
 using namespace std;
 
 struct Monkey {
   int id;
-  vector<long long int> items;
+  deque<long long int> items;
   string operation;
   int opNum;
   int divisibleBy;
@@ -43,6 +44,40 @@ void printItems(Monkey& m) {
     cout << item << " ";
   }
   cout << endl;
+}
+
+void doRound(vector<Monkey>& monkeys, int numMonkeys) {
+  for (int i = 0; i < numMonkeys; i++) {
+    Monkey& m = monkeys[i];
+    // cout << "Monkey " << m.id << endl;
+    m.inspectedItems += m.items.size();
+    while(!m.items.empty()) {
+      // inspect each item
+      long long worryLevel = m.items.front();
+      // cout << "item: " << worryLevel << " ";
+      m.items.pop_front();
+      if (m.operation == "*") {
+        if (m.opNum == -1) worryLevel *= worryLevel;
+        else worryLevel *= m.opNum;
+      } else { // addition
+        worryLevel += m.opNum;
+      }
+      // cout << "worry : " << worryLevel << " ";
+      // worryLevel %= 9699690;
+      worryLevel = floor(worryLevel / 3.0);
+      // cout << "div 3: " << worryLevel << " ";
+      if (worryLevel % m.divisibleBy == 0) {
+        // pass to True
+        // cout << " to T " << m.onTrue << endl;
+        monkeys[m.onTrue].items.push_back(worryLevel);
+      } else {
+        // pass to False
+        // cout << " to F " << m.onFalse << endl;
+        monkeys[m.onFalse].items.push_back(worryLevel);
+      }
+    }
+  }
+
 }
 
 int main() {
@@ -98,56 +133,23 @@ int main() {
     printItems(monkey);
   }
   // done parsing input
-  for (int j = 1; j <= 20; j++) {
-    for (int i = 0; i < numMonkeys; i++) {
-      Monkey& m = monkeys[i];
-      // if (j == 7) cout << "Monkey " << m.id << endl;
-      while(!m.items.empty()) {
-        // inspect each item
-        // if (j == 7) cout << "item: " << m.items[0] << " ";
-        m.inspectedItems++;
-        long long worryLevel = m.items[0];
-        if (m.operation == "*") {
-          if (m.opNum == -1) worryLevel = worryLevel * worryLevel;
-          else worryLevel = worryLevel * m.opNum;
-
-        } else {
-          // +
-          if (m.opNum == -1) worryLevel = worryLevel + worryLevel;
-          else worryLevel = worryLevel + m.opNum;
-        }
-        worryLevel = floorl(worryLevel / 3);
-        // if (j == 7) cout << "worryLevel: " << worryLevel << " ";
-        if (worryLevel % m.divisibleBy == 0) {
-          // pass to True
-          // if (j == 7) cout << "pass to " << m.onTrue << " ";
-          monkeys[m.onTrue].items.push_back(worryLevel);
-        } else {
-          // pass to False
-          // if (j == 7) cout << "pass to " << m.onFalse << " ";
-          monkeys[m.onFalse].items.push_back(worryLevel);
-        }
-        vector<long long int> updatedItems = m.items;
-        updatedItems.erase(updatedItems.begin());
-        m.items = updatedItems;
-        // cout << "updated items: ";
-        // for (auto i : m.items) {
-        //   cout << i << " ";
-        // }
-        // if (j== 7) cout << endl;
-      }
-      // if (j == 7) printMonkey(monkeys[6]);
-    }
-    cout << "round " << j << endl;
+  for (int j = 0; j < 20; j++) {
+    cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+    doRound(monkeys, numMonkeys);
+    cout << "round " << j+1 << endl;
     for (auto& monkey : monkeys) {
       printItems(monkey);
     }
+    for (auto& monkey : monkeys) {
+      int inspected = printInspected(monkey);
+    }
+
   }
 
-  int max1, max2 = 0;
-  for (auto& monkey : monkeys) {
-    int inspected = printInspected(monkey);
-  }
+  // int max1, max2 = 0;
+  // for (auto& monkey : monkeys) {
+  //   int inspected = printInspected(monkey);
+  // }
 
   return 0;
 }
